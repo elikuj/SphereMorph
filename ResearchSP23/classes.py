@@ -1,25 +1,37 @@
 import numpy as np
 import numpy.linalg as la
 import scipy.spatial as spat
+from scipy.spatial.transform import Rotation as R
 from p5 import *
 import networkx as nx
 
 class Node:
-    adjacencies = []
     coordinates = ()
+    adjacencies = []
+    # adjacencies should be stored in cyclic order.
 
     def __init__(self, adj, coords):
         self.adjacencies = adj
-        #self.coordinates = coords
         self.coordinates = tuple([100 * c for c in coords])
 
-    def spherical(self, r):
-        mag = la.norm(np.array(self.coordinates))
-        vertex(self.coordinates[0]*r/mag, self.coordinates[1]*r/mag, self.coordinates[2]*r/mag)
-    
+    # plot point
     def plot(self):
         vertex(self.coordinates[0], self.coordinates[1], self.coordinates[2])
 
+    # get coordinates as a np.array
+    def arr(self):
+        return np.asarray(self.coordinates)
+
+    # plot projection of point on sphere of radius r
+    def spherical(self, r):
+        mag = la.norm(np.array(self.coordinates))
+        vertex(self.coordinates[0]*r/mag, self.coordinates[1]*r/mag, self.coordinates[2]*r/mag)
+        return np.asarray(self.coordinates)*r/mag
+
+    # get spherical coordinates as a np.array
+    def sphericalCoords(self, r):
+        mag = la.norm(np.array(self.coordinates))
+        return np.asarray(self.coordinates)*r/mag
     
 
 class Graph:
@@ -53,9 +65,34 @@ class Graph:
                         #return path[cycle_idx:] + [neighbor]
         end_shape()
 
-    
-    #def plotSpherical(self, r):
-
+    def plotSpherical(self, r):
+        visited = set()
+        stack = [(self.points[0], self.points[-1])]
+        path = []
+        while stack:
+            current, parent = stack.pop()
+            begin_shape()
+            first = current.spherical(r)
+            if(parent != None):
+                first = current.sphericalCoords(r)
+                second = parent.sphericalCoords(r)
+                normal = np.cross(first, second)
+                normal = normal/np.linalg.norm(normal)
+                theta = math.acos(np.dot(first, second)/r**2)
+                divs = (int)(np.linalg.norm(current.arr()-parent.arr())/10)
+                toplot = first
+                for i in range(0, divs):
+                    rotvec = R.from_rotvec(normal * theta/divs)
+                    toplot = rotvec.apply(toplot)
+                    vertex(toplot[0], toplot[1], toplot[2])
+            if current not in visited:
+                visited.add(current)
+                path.append(current)
+                for neighbor in current.adjacencies:
+                    stack.append((neighbor, current))
+            end_shape()
+        
+    #def transform(transformation):
 
 
 
@@ -89,6 +126,13 @@ M.adjacencies = [K, L]
 
 grap = Graph([A, B, C, D, E, F, G, H, I, J, K, L, M])
 
+
+one = Node([], (3, 3, 0))
+two = Node([], (3, -3, 0))
+one.adjacencies = [two]
+two.adjacencies = [one]
+simple = Graph([one, two])
+
 def setup():
     #noFill()
     size(1000, 1000)
@@ -101,15 +145,14 @@ def draw():
     grap.plot()
     end_shape()
 
+
+    push()
+    stroke(255)
+    grap.plotSpherical(100)
+    pop()
+
 if __name__ == '__main__':
     run(mode='P3D')
 
 
 
-G = nx.Graph()
-for node in [A, B, C, D, E, F, G, H, I, J, K, L, M]:
-    G.add_node(node)
-    for neighbor in node.adjacencies:
-        G.add_edge(node, neighbor)
-print(nx.is_planar(G))
-print(nx.node_connectivity(G))

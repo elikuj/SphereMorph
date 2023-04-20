@@ -69,6 +69,7 @@ class Graph:
         visited = set()
         stack = [(self.points[0], self.points[-1])]
         path = []
+        #begin_shape()
         while stack:
             current, parent = stack.pop()
             begin_shape()
@@ -91,8 +92,29 @@ class Graph:
                 for neighbor in current.adjacencies:
                     stack.append((neighbor, current))
             end_shape()
+
+    def vecsAsMatrix(self):
+        mat = np.ndarray((len(self.points), 3), float)
+        for i in range(len(self.points)):
+            mat[i][0] = self.points[i].coordinates[0]
+            mat[i][1] = self.points[i].coordinates[1]
+            mat[i][2] = self.points[i].coordinates[2]
+        return mat
+
+    def matToPoints(self, mat):
+        for i, point in enumerate(self.points):
+            self.points[i].coordinates = (mat[i][0], mat[i][1], mat[i][2])
+        return self.points
+
+    def getCoords(self):
+        toreturn = []
+        for point in self.points:
+            toreturn.append(point.coordinates)
+        return toreturn
         
-    #def transform(transformation):
+    def transform(self, tmat):
+        self.matToPoints(self.vecsAsMatrix()@tmat)
+        
 
 
 
@@ -133,18 +155,35 @@ one.adjacencies = [two]
 two.adjacencies = [one]
 simple = Graph([one, two])
 
+def stretchmat(factor):
+    return np.array([[factor, 0, 0], [0, 1, 0], [0, 0, 1]])
+
+count = 0
+inc = 1.5
+
 def setup():
     #noFill()
     size(1000, 1000)
+    frame_rate=5
 
 def draw():
+    global count
+    global inc
+
     background(120)
     no_fill()
     camera(4*(mouse_x-width/2), 4*mouse_y, (height/2.0)/(math.tan(PI/6)), 0, 0, 0, 0, 1, 0)
+
+    if(count == 10):
+        inc = 1/inc
+        count = 0
+
+    count += 1
+    grap.transform(stretchmat(inc))
+
     begin_shape()
     grap.plot()
     end_shape()
-
 
     push()
     stroke(255)
@@ -153,6 +192,5 @@ def draw():
 
 if __name__ == '__main__':
     run(mode='P3D')
-
 
 

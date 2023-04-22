@@ -4,6 +4,7 @@ import scipy.spatial as spat
 from scipy.spatial.transform import Rotation as R
 from p5 import *
 import networkx as nx
+import copy
 
 class Node:
     coordinates = ()
@@ -21,6 +22,9 @@ class Node:
     # get coordinates as a np.array
     def arr(self):
         return np.asarray(self.coordinates)
+
+    def update(self, newcoords):
+        self.coordinates = (newcoords[0], newcoords[1], newcoords[2])
 
     # plot projection of point on sphere of radius r
     def spherical(self, r):
@@ -114,6 +118,16 @@ class Graph:
         
     def transform(self, tmat):
         self.matToPoints(self.vecsAsMatrix()@tmat)
+
+    def projectToPlane(self):
+        temp = copy.deepcopy(self)
+        for point in temp.points:
+            if(point.coordinates[2] != 0):
+                point.update(point.spherical(100)*-100/point.coordinates[2])
+            else:
+                point.update([point.coordinates[0], point.coordinates[1], -100])
+        temp.plot()
+            
         
 
 
@@ -161,6 +175,7 @@ def stretchmat(factor):
 count = 0
 inc = 1.5
 
+
 def setup():
     #noFill()
     size(1000, 1000)
@@ -179,7 +194,7 @@ def draw():
         count = 0
 
     count += 1
-    grap.transform(stretchmat(inc))
+    
 
     begin_shape()
     grap.plot()
@@ -190,7 +205,11 @@ def draw():
     grap.plotSpherical(100)
     pop()
 
+    push()
+    stroke(255, 0, 0)
+    grap.projectToPlane()
+    pop()
+
 if __name__ == '__main__':
     run(mode='P3D')
-
 

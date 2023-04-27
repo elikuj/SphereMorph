@@ -123,10 +123,20 @@ class Graph:
         temp = copy.deepcopy(self)
         for point in temp.points:
             if(point.coordinates[2] != 0):
-                point.update(point.spherical(100)*-100/point.coordinates[2])
-            else:
-                point.update([point.coordinates[0], point.coordinates[1], -100])
+                point.update(point.spherical(100)*300/point.spherical(100)[2])
         temp.plot()
+
+    def contract(self, i1, i2):
+        fst = self.points[i1].arr()
+        sec = self.points[i2].arr()
+        vec = np.array(fst-sec)
+        vec = vec/np.linalg.norm(vec)
+        self.points[i2].update(sec+vec)
+        self.points[i1].update(fst-vec)
+
+    def translate(self, translation):
+        for pt in self.points:
+            pt.update(pt.arr()+translation)
             
         
 

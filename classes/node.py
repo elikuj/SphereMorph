@@ -6,7 +6,7 @@ from p5 import *
 import copy
 
 class Node:
-    coordinates = ()
+    coordinates = []
     adjacencies = []
     # adjacencies should be stored in cyclic order.
 
@@ -23,17 +23,17 @@ class Node:
         return np.asarray(self.coordinates)
 
     def update(self, newcoords):
-        self.coordinates = (newcoords[0], newcoords[1], newcoords[2])
+        self.coordinates = np.array([newcoords[0], newcoords[1], newcoords[2]])
 
     # plot projection of point on sphere of radius r
     def spherical(self, r):
-        mag = la.norm(np.array(self.coordinates))
+        mag = la.norm(self.coordinates)
         vertex(self.coordinates[0]*r/mag, self.coordinates[1]*r/mag, self.coordinates[2]*r/mag)
-        return np.asarray(self.coordinates)*r/mag
+        return self.coordinates*r/mag
 
     # get spherical coordinates as a np.array
     def sphericalCoords(self, r):
-        mag = la.norm(np.array(self.coordinates))
-        return np.asarray(self.coordinates)*r/mag
+        mag = la.norm(self.coordinates)
+        return self.coordinates*r/mag
    
 

@@ -7,7 +7,7 @@ import classes.node
 
 class Graph:
     points = []
-    edges = 0
+    edges = 0       # number of edges in polyhedron
 
     def __init__(self, points):
         self.points = points
@@ -40,6 +40,7 @@ class Graph:
                         # Cycle detected
                         #cycle_idx = path.index(neighbor)
                         #return path[cycle_idx:] + [neighbor]
+                    
         #end_shape()
 
     def plotSpherical(self, r):
@@ -110,3 +111,16 @@ class Graph:
     def translate(self, translation):
         for pt in self.points:
             pt.update(pt.arr()+translation)
+            
+    def soften(self):
+        for point in self.points:
+            
+            toadd = np.array([0.0,0.0,0.0])
+            for p in point.adjacencies:
+                toadd += p.arr()
+            toadd = toadd*1.0/len(point.adjacencies)
+            point.update(0.1*toadd + 0.9*point.arr())
+            
+    def scale(self, factor):
+        for point in self.points:
+            point.coordinates = point.coordinates*factor

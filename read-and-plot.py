@@ -17,7 +17,6 @@ from classes.node import *
 
 filename = "shapes/icosahedron.txt"
 #filename = "shapes/small-stellated-dodecahedron.txt"
-# test
 f = open(filename, "r")
 
 points = []

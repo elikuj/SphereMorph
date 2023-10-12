@@ -2,19 +2,19 @@ import numpy as np
 import numpy.linalg as la
 import scipy.spatial as spat
 from scipy.spatial.transform import Rotation as R
+from scipy.spatial import ConvexHull
 from p5 import *
 import classes.node
 
 class Graph:
-    points = []
+    points = []     # 2d np array of Points  // in current state, required to be in order and will need to repeat some of em
+    faces = []      # 2d np array; each element has indices of a face of polyhedron in cyclic order
     edges = 0       # number of edges in polyhedron
 
-    def __init__(self, points):
-        self.points = points
-        self.edges = 0
-        for pt in points:
-            self.edges += len(pt.adjacencies)
-        self.edges = self.edges/2
+    def __init__(self, points, faces = []):
+        self.points = np.array(points)
+        self.faces = faces
+        self.edges = len(points) + len(faces) - 2
 
     def plot(self):
         visited = set()
@@ -42,6 +42,15 @@ class Graph:
                         #return path[cycle_idx:] + [neighbor]
                     
         #end_shape()
+        
+    def plotFromFaces(self, sf=1):
+        for face in self.faces:
+            begin_shape()
+            for ptidx in face:
+                pt = self.points[ptidx] *sf
+                vertex(pt[0], pt[1], pt[2])
+            end_shape()
+                
 
     def plotSpherical(self, r):
         visited = set()
@@ -69,6 +78,32 @@ class Graph:
                 visited.add((current, parent))
                 for neighbor in current.adjacencies:
                     stack.append((neighbor, current))
+            end_shape()
+            
+    def plotSphericalFromFaces(self, r):
+        for face in self.faces:
+            begin_shape()
+            for i in range(len(face)):
+                pt = self.points[face[i]]
+                mag = la.norm(pt)
+                pt = pt/mag*r
+            
+                next = self.points[face[(i+1)%len(face)]]
+                mag2 = la.norm(next)
+                next = next/mag2*r
+        
+                normal = np.cross(pt, next)
+                normal = normal/np.linalg.norm(normal)
+                theta = math.acos(np.dot(pt, next)/r**2)
+                divs = (int)(np.linalg.norm(pt-next)/10)
+                toplot = pt
+               
+                for i in range(0, divs):
+                    rotvec = R.from_rotvec(normal * theta/divs)
+                    toplot = rotvec.apply(toplot)
+                    vertex(toplot[0], toplot[1], toplot[2])
+                
+                #vertex(pt[0], pt[1], pt[2])
             end_shape()
 
     def vecsAsMatrix(self):
@@ -103,7 +138,7 @@ class Graph:
     def contract(self, i1, i2):
         fst = self.points[i1].arr()
         sec = self.points[i2].arr()
-        vec = np.array(fst-sec)
+        vec = np.array(fst)-np.array(sec)
         vec = vec/np.linalg.norm(vec)
         self.points[i2].update(sec+vec)
         self.points[i1].update(fst-vec)
@@ -124,3 +159,31 @@ class Graph:
     def scale(self, factor):
         for point in self.points:
             point.coordinates = point.coordinates*factor
+            
+    #   Compute the kernel of the graph by dualizing the complex hull of the dual graph
+    #   returns kernel as Graph type
+    def kernel(self, sf=1):
+        dual_points = []
+        for face in self.faces:             # computing vertices of dual graph
+            v1 = self.points[face[1]] - self.points[face[0]]
+            v2 = self.points[face[2]] - self.points[face[1]] 
+            normal = np.cross(v1, v2)
+            d = np.dot(self.points[face[1]], normal)
+            dual_points.append(sf*np.array([normal[0], normal[1], normal[2]])/d)
+        
+        hull = ConvexHull(dual_points)      # convex hull of dual
+        
+        kernel_points = []
+        for face in hull.simplices:         # computing vertices of dual of dual of convex hull
+            v1 = dual_points[face[1]] - dual_points[face[0]]
+            v2 = dual_points[face[2]] - dual_points[face[1]] 
+            normal = np.cross(v1, v2)
+            d = np.dot(dual_points[face[0]], normal)
+            kernel_points.append(sf*np.array([normal[0], normal[1], normal[2]])/d)
+        
+        # convex hull of dual of convex hull of dual
+        # convoluted but only works this way, for some reason
+        kernel_hull = ConvexHull(kernel_points)     
+        kernel = Graph(kernel_points, kernel_hull.simplices)  
+        
+        return kernel

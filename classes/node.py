@@ -12,7 +12,7 @@ class Node:
 
     def __init__(self, adj, coords):
         self.adjacencies = adj
-        self.coordinates = coords #tuple([c for c in coords])
+        self.coordinates = coords # should be np.array, ideally        // tuple([c for c in coords])
 
     # plot point
     def plot(self):
@@ -20,7 +20,7 @@ class Node:
 
     # get coordinates as a np.array
     def arr(self):
-        return np.asarray(self.coordinates)
+        return self.coordinates
 
     def update(self, newcoords):
         self.coordinates = np.array([newcoords[0], newcoords[1], newcoords[2]])
@@ -35,5 +35,8 @@ class Node:
     def sphericalCoords(self, r):
         mag = la.norm(self.coordinates)
         return self.coordinates*r/mag
+    
+    def asTuple(self):
+        return (self.coords[0], self.coords[1], self.coords[2])
    
 

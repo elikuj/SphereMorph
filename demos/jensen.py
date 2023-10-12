@@ -13,18 +13,18 @@ sys.path.append(parent)
 from classes.graph import *
 from classes.node import *
            
-A = Node([], (200, 100, 0))       
-B = Node([], (-200, 100, 0))       
-C = Node([], (200, -100, 0))       
-D = Node([], (-200, -100, 0))       
-E = Node([], (0, 200, 100))
-F = Node([], (0, -200, 100))
-G = Node([], (0, 200, -100))
-H = Node([], (0, -200, -100))
-I = Node([], (100, 0, 200))
-J = Node([], (100, 0, -200))
-K = Node([], (-100, 0, 200))
-L = Node([], (-100, 0, -200))
+A = Node([], [200, 100, 0])       
+B = Node([], [-200, 100, 0])       
+C = Node([], [200, -100, 0])       
+D = Node([], [-200, -100, 0])       
+E = Node([], [0, 200, 100])
+F = Node([], [0, -200, 100])
+G = Node([], [0, 200, -100])
+H = Node([], [0, -200, -100])
+I = Node([], [100, 0, 200])
+J = Node([], [100, 0, -200])
+K = Node([], [-100, 0, 200])
+L = Node([], [-100, 0, -200])
 
 A.adjacencies = [B, I, J, E, G]
 B.adjacencies = [L, G, A, E, K]

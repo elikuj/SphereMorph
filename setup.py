@@ -22,6 +22,7 @@ class Node:
     def arr(self):
         return np.asarray(self.coordinates)
 
+    # update coordinates
     def update(self, newcoords):
         self.coordinates = (newcoords[0], newcoords[1], newcoords[2])
 
@@ -68,11 +69,6 @@ class Graph:
                 for neighbor in parent.adjacencies:
                     #if neighbor not in visited:
                     stack.append((parent, neighbor))
-                    #elif neighbor is not parent:
-                        # Cycle detected
-                        #cycle_idx = path.index(neighbor)
-                        #return path[cycle_idx:] + [neighbor]
-        #end_shape()
 
     def plotSpherical(self, r):
         visited = set()
@@ -130,3 +126,14 @@ class Graph:
             if(point.coordinates[2] != 0):
                 point.update(point.spherical(100)*300/point.spherical(100)[2])
         temp.plot()
+        
+    def soften(self):
+        for point in self.points:
+            
+            toadd = np.array([0,0,0])
+            for p in point.adjacencies:
+                toadd += p.coordinates
+            toadd = toadd/len(point.adjacencies)
+            point = 0.1*toadd + 0.9*point.adjacencies
+                
+            

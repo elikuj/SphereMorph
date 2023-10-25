@@ -15,7 +15,7 @@ sys.path.append(parent)
 from classes.graph import *
 from classes.node import *
 
-filename = "shapes/icosahedron.txt"
+filename = "shapes/concave-dodecahedron.txt"
 #filename = "shapes/small-stellated-dodecahedron.txt"
 f = open(filename, "r")
 

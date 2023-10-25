@@ -160,7 +160,7 @@ class Graph:
         for point in self.points:
             point.coordinates = point.coordinates*factor
             
-    #   Compute the kernel of the graph by dualizing the complex hull of the dual graph
+    #   Compute the kernel of the graph by dualizing the convex hull of the dual graph
     #   returns kernel as Graph type
     def kernel(self, sf=1):
         dual_points = []

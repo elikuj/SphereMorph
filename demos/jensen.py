@@ -114,6 +114,8 @@ def draw():
     jensen.plot()
     end_shape()
     pop()
+    
+    kernel = jensen.kernel()
 
 
     push()
@@ -125,6 +127,16 @@ def draw():
     push()
     stroke(255, 0, 0)
     #square.projectToPlane()
+    pop()
+    
+    push()
+    #blinn_phong_material()
+    fill(100, 0, 0)
+    
+    stroke(255, 0, 0)
+    kernel.plotFromFaces()
+    
+    
     pop()
 
     push()

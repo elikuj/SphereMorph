@@ -103,6 +103,16 @@ def draw():
     end_shape()
     pop()
     
+    kernel = twistedpris.kernel()
+    
+    push()
+    stroke(255, 0, 0)
+    fill(100, 100, 0, 1)
+    begin_shape()
+    kernel.plotFromFaces(sf=100)
+    end_shape()
+    pop()
+    
     push()
     no_stroke()
     fill(120, 128)

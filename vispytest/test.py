@@ -14,7 +14,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 
-from classes.vispy-wrapper import *
+from classes.vispyWrapper import *
 from classes.node import *
 
 class Canvas(scene.SceneCanvas):

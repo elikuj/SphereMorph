@@ -24,47 +24,38 @@ from classes.node import *
 from polyparser import *
 
 
-# making test vispy-graph object
-verts = np.array([
-    [50, 0, 81],
-    [50, 0, -81],
-    [-50, 0, 81],
-    [-50, 0, -81],
-    [81, 50, 0],
-    [81, -50, 0],
-    [-81, 50, 0],
-    [-81, -50, 0],
-    [0, 81, 50],
-    [0, 81, -50],
-    [0, -81, 50],
-    [0, -81, -50]
-])
-faces = np.array([
-    [0, 2, 10],
-    [0, 10, 5],
-    [0, 5, 4],
-    [0, 4, 8],
-    [0, 8, 2],
-    [3, 1, 11],
-    [3, 11, 7],
-    [3, 7, 6],
-    [3, 6, 9],
-    [3, 9, 1],
-    [2, 6, 7],
-    [2, 7, 10],
-    [10, 7, 11],
-    [10, 11, 5],
-    [5, 11, 1],
-    [5, 1, 4],
-    [4, 1, 9],
-    [4, 9, 8],
-    [8, 9, 6],
-    [8, 6, 2]
-])
-        
-vgraph = VispyGraph(Graph(verts, faces))
+def TwistedPrism(sides=3, twist=1 / 12, height=2, radius=1):
+    if twist > 1 / 2 - 1 / sides:
+        print("❌DANGER❌ Self-intersecting twisted prism!")
 
-parsedpoly = VispyGraph(parsePoly("../shapes/icosahedron.txt"))
+    theta = np.linspace(0, 2 * np.pi, sides + 1)
+    xbot = radius * np.cos(theta)
+    ybot = radius * np.sin(theta)
+    zbot = -height / 2
+    xtop = radius * np.cos(theta - 2 * np.pi * twist)
+    ytop = radius * np.sin(theta - 2 * np.pi * twist)
+    ztop = height / 2
+
+    botverts = [[xbot[i], ybot[i], zbot] for i in range(sides)]
+    topverts = [[xtop[i], ytop[i], ztop] for i in range(sides)]
+    vertices = np.array(botverts + topverts + [[0, 0, zbot], [0, 0, ztop]])
+
+    botfaces = [[(i + 1) % sides, i, 2 * sides] for i in range(sides)]
+    upfaces = [[i, (i + 1) % sides, sides + i] for i in range(sides)]
+    dnfaces = [
+        [(i + 1) % sides, sides + (i + 1) % sides, sides + i] for i in range(sides)
+    ]
+    topfaces = [
+        [sides + i, sides + (i + 1) % sides, 2 * sides + 1] for i in range(sides)
+    ]
+    faces = np.array(botfaces + upfaces + dnfaces + topfaces)
+
+    #SanityCheck(vertices, faces)  # ignore return value for now
+    return (vertices, faces)
+        
+verts, faces = TwistedPrism(6, 0, 200, 100)
+parsedpoly = VispyGraph(Graph(verts, faces))
+
 
 
 
@@ -97,21 +88,24 @@ class Canvas(scene.SceneCanvas):
         #poly = Mesh(verts, faces)
         #self.view.add(poly)
         #wireframe_filter = WireframeFilter()
-        #alphilter = Alpha(alpha = 0.3)
+        alphilter = Alpha(alpha = 0.8)
         #shader = ShadingFilter()
         #scene.visuals.Sphere(parent=self.view.scene, radius = 80)
         #poly.attach(alphilter)
         #poly.attach(wireframe_filter)
         #poly.attach(shader)
         
-        self.view.add(parsedpoly.outline(color="black"))
+        # self.view.add(parsedpoly.outline(color="black"))
+        # self.view.add(parsedpoly.kernel())
         
         r=40
         vgraph_spherical = parsedpoly.sphericalOutline(r)
         for face in vgraph_spherical:
             self.view.add(face)
-            
-        self.view.add(scene.visuals.Sphere(radius=r))
+        
+        sphere = scene.visuals.Sphere(radius=r)
+        sphere.attach(alphilter)
+        self.view.add(sphere)
         
         #self.view.add(parsedpoly.kernel(alpha=0.8))
         #self.view.add(parsedpoly.outline())

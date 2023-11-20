@@ -18,3 +18,7 @@ The functions allowed in the simulation are all contained in the classes/graph.p
 - contracting 2 vertices towards each other
 - applying any matrix transformation to the graph
 - plotting the kernel of a graph
+
+## "Breaking Lemmas"
+
+This folder contains programs simulating some lemmas largely regarding convexification of spherically-embedded quadrilaterals. The goal is to test for counterexamples (and hopefully Not find any!).

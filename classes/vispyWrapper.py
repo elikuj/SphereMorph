@@ -70,7 +70,7 @@ class VispyGraph(Graph):
                     
                     points.append(np.array(toplot))
                     
-            points = vp.Line(pos=np.array(points), width=3, color='purple', connect='strip', method='gl')
+            points = vp.Line(pos=np.array(points), width=3, color='black', connect='strip', method='gl')
             spherical_faces.append(points)
         return spherical_faces
         

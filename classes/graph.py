@@ -98,7 +98,7 @@ class Graph:
                     vertex(toplot[0], toplot[1], toplot[2])
                 
                 #vertex(pt[0], pt[1], pt[2])
-            end_shape()
+            end_shape(CLOSE)
 
     def vecsAsMatrix(self):
         mat = np.ndarray((len(self.points), 3), float)

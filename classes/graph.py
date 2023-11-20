@@ -7,8 +7,8 @@ from p5 import *
 import classes.node
 
 class Graph:
-    points = []     # 2d np array of Points  // in current state, required to be in order and will need to repeat some of em
-    faces = []      # 2d np array; each element has indices of a face of polyhedron in cyclic order
+    points = []     # 2d np array of Points 
+    faces = []      # 2d np array; each element has indices of points in a face of polyhedron in cyclic order
     edges = 0       # number of edges in polyhedron
 
     def __init__(self, points, faces = []):
@@ -36,12 +36,6 @@ class Graph:
                 for neighbor in parent.adjacencies:
                     #if neighbor not in visited:
                     stack.append((parent, neighbor))
-                    #elif neighbor is not parent:
-                        # Cycle detected
-                        #cycle_idx = path.index(neighbor)
-                        #return path[cycle_idx:] + [neighbor]
-                    
-        #end_shape()
         
     def plotFromFaces(self, sf=1):
         for face in self.faces:
@@ -104,7 +98,7 @@ class Graph:
                     vertex(toplot[0], toplot[1], toplot[2])
                 
                 #vertex(pt[0], pt[1], pt[2])
-            end_shape()
+            end_shape(CLOSE)
 
     def vecsAsMatrix(self):
         mat = np.ndarray((len(self.points), 3), float)
@@ -146,15 +140,7 @@ class Graph:
     def translate(self, translation):
         for pt in self.points:
             pt.update(pt.arr()+translation)
-            
-    def soften(self):
-        for point in self.points:
-            
-            toadd = np.array([0.0,0.0,0.0])
-            for p in point.adjacencies:
-                toadd += p.arr()
-            toadd = toadd*1.0/len(point.adjacencies)
-            point.update(0.1*toadd + 0.9*point.arr())
+        
             
     def scale(self, factor):
         for point in self.points:
@@ -187,3 +173,19 @@ class Graph:
         kernel = Graph(kernel_points, kernel_hull.simplices)  
         
         return kernel
+    
+    def soften(self):
+        for point in self.points:
+            
+            toadd = np.array([0.0,0.0,0.0])
+            for p in point.adjacencies:
+                toadd += p.arr()
+            toadd = toadd*1.0/len(point.adjacencies)
+            point.update(0.1*toadd + 0.9*point.arr())
+            
+    def morph(self, new_graph, trans_factor=0.05):
+        trans_vecs = -1*(self.points - new_graph.points)
+        for i, point in enumerate(self.points):
+            point = trans_vecs[i]*trans_factor + point
+            self.points[i]=point
+        return self

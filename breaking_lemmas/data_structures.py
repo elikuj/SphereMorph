@@ -98,17 +98,19 @@ def test_dets(a, b, c):
     #print(fixed_det)
     if og_det*fixed_det >= 0:
         print("No self-intersection!")
+        to_str(np.array([coords(a),coords(b),coords(c)]))
+        to_str(np.array([fixed_a, fixed_b, fixed_c]))
         return True
     else:
         print("❌ SELF INTERSECTION!!! ❌")
         #print(np.array([coords(a),coords(b),c]))
-        to_str(np.array([coords(a),coords(b),coords(c)]))
-        to_str(np.array([fixed_a, fixed_b, fixed_c]))
+        #to_str(np.array([coords(a),coords(b),coords(c)]))
+        #to_str(np.array([fixed_a, fixed_b, fixed_c]))
         return False
         
         
 # run "trials" num of simulations.
-# currently returns "self intersection" about 50% of times, but there's probably something wrong with it
+# has yet to produce a counterexample in current version of simulation (as of 11/20/23)
 def simulate(trials):
     fails = 0
     for i in range(trials):
@@ -119,5 +121,5 @@ def simulate(trials):
             fails += 1
     return fails
 
-print(simulate(10000))
+#print(simulate(10000))
     
